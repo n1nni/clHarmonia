@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Fonts are loaded via <link> in index.html */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background-color: #0f1117;
+  color: #e5e7eb;
+}
+
+/* Custom slider styling */
+.threshold-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #2d3148;
+  border-radius: 2px;
+  outline: none;
+}
+
+.threshold-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f59e0b;
+  cursor: pointer;
+  border: 2px solid #0f1117;
+  box-shadow: 0 0 0 2px #f59e0b;
+  transition: box-shadow 150ms ease;
+}
+
+.threshold-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3);
+}
+
+.threshold-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f59e0b;
+  cursor: pointer;
+  border: 2px solid #0f1117;
+  box-shadow: 0 0 0 2px #f59e0b;
+}
+
+/* Popup fade-in animation */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.popup-enter {
+  animation: fadeInScale 150ms ease forwards;
+}
+
+/* Note box transition */
+.note-box {
+  transition: background-color 150ms ease, border-color 150ms ease, opacity 150ms ease;
+}
