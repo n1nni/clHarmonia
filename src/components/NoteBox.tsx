@@ -40,23 +40,23 @@ function getNoteColor(note: Note, threshold: number): {
   if (note.user_correction !== null) {
     return {
       border: "#22c55e",
-      bg: "rgba(34,197,94,0.18)",
-      bgHover: "rgba(34,197,94,0.32)",
+      bg: "rgba(34,197,94,0.06)",
+      bgHover: "rgba(34,197,94,0.18)",
       ring: "rgba(34,197,94,0.5)",
     };
   }
   if (note.prediction.probability < threshold / 100) {
     return {
       border: "#ef4444",
-      bg: "rgba(239,68,68,0.18)",
-      bgHover: "rgba(239,68,68,0.32)",
+      bg: "rgba(239,68,68,0.06)",
+      bgHover: "rgba(239,68,68,0.18)",
       ring: "rgba(239,68,68,0.5)",
     };
   }
   return {
     border: "#3b82f6",
-    bg: "rgba(59,130,246,0.18)",
-    bgHover: "rgba(59,130,246,0.32)",
+    bg: "rgba(59,130,246,0.06)",
+    bgHover: "rgba(59,130,246,0.18)",
     ring: "rgba(59,130,246,0.5)",
   };
 }

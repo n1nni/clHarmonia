@@ -196,7 +196,7 @@ export default function App() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [notesById, addedNoteIds]);
+  }, [notesById, addedNoteIds, deletedNoteIds]);
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) return;

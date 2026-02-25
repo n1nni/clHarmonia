@@ -3,6 +3,7 @@ import type { OmrOutput, Note, NoteAlternative, StaffLine } from "../types/omr";
 import { useScaleFactors } from "../hooks/useScaleFactors";
 import { NoteBox } from "./NoteBox";
 import { NotePopup } from "./NotePopup";
+import { NoteSymbolLayer } from "./NoteSymbolLayer";
 
 interface ScoreViewerProps {
   omrData: OmrOutput;
@@ -144,6 +145,16 @@ export function ScoreViewer({ omrData, threshold, imageUrl, notes, addNoteMode, 
             onClick={handleNoteClick}
           />
         ))}
+
+        {/* SVG note symbols — rendered on top of boxes, pointer-events none */}
+        {imageUrl && (
+          <NoteSymbolLayer
+            notes={notes}
+            threshold={threshold}
+            originalWidth={omrData.image_size.width}
+            originalHeight={omrData.image_size.height}
+          />
+        )}
 
         {/* Add-note mode overlay hint */}
         {addNoteMode && (
