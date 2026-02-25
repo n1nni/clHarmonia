@@ -7,6 +7,7 @@ interface NotePopupProps {
   anchorY: number;
   onCorrect: (note: Note, alternative: NoteAlternative) => void;
   onReset: (note: Note) => void;
+  onDelete: (note: Note) => void;
   onClose: () => void;
 }
 
@@ -45,7 +46,7 @@ function fmtTypeName(type: NoteType): string {
 const POPUP_WIDTH = 288;
 const POPUP_HEIGHT_APPROX = 320;
 
-export function NotePopup({ note, anchorX, anchorY, onCorrect, onReset, onClose }: NotePopupProps) {
+export function NotePopup({ note, anchorX, anchorY, onCorrect, onReset, onDelete, onClose }: NotePopupProps) {
   const popupRef = useRef<HTMLDivElement>(null);
 
   const vw = window.innerWidth;
@@ -173,6 +174,16 @@ export function NotePopup({ note, anchorX, anchorY, onCorrect, onReset, onClose 
               </span>
             </button>
           </div>
+
+          {/* Delete note */}
+          <div style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
+          <button
+            onClick={() => { onDelete(note); onClose(); }}
+            className="w-full rounded-lg py-2 transition-colors hover:brightness-110"
+            style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: "0.75rem", background: "rgba(239,68,68,0.08)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.25)" }}
+          >
+            ✕ Delete Note
+          </button>
 
           {/* Alternatives */}
           {sortedAlts.length > 0 && (

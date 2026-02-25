@@ -31,6 +31,7 @@ export default function App() {
   const [addNoteMode, setAddNoteMode] = useState(false);
   const [addNotePos, setAddNotePos]   = useState<AddNotePos | null>(null);
   const [addedNoteIds, setAddedNoteIds] = useState<string[]>([]);
+  const [deletedNoteIds, setDeletedNoteIds] = useState<Set<string>>(new Set());
   const addedNoteCounter = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -46,11 +47,14 @@ export default function App() {
     []
   );
 
-  // Combine original + user-added IDs, then resolve to Note objects
+  // Combine original + user-added IDs, filter deleted, then resolve to Note objects
   const notes: Note[] = useMemo(() => {
     const allIds = [...originalNoteIds, ...addedNoteIds];
-    return allIds.map((id) => notesById.get(id)).filter((n): n is Note => n !== undefined);
-  }, [originalNoteIds, addedNoteIds, notesById]);
+    return allIds
+      .filter((id) => !deletedNoteIds.has(id))
+      .map((id) => notesById.get(id))
+      .filter((n): n is Note => n !== undefined);
+  }, [originalNoteIds, addedNoteIds, notesById, deletedNoteIds]);
 
   // Legend counts
   const { uncertainCount, acceptedCount, correctedCount } = useMemo(() => {
@@ -81,6 +85,10 @@ export default function App() {
         },
       });
     });
+  }, []);
+
+  const handleDelete = useCallback((noteId: string) => {
+    setDeletedNoteIds((prev) => new Set(prev).add(noteId));
   }, []);
 
   const handleReset = useCallback((noteId: string) => {
@@ -138,23 +146,44 @@ export default function App() {
   }, [addNotePos]);
 
   const handleExport = useCallback(() => {
-    // Build full OMR output with all corrections applied
-    const correctedSystems = omrData.systems.map((sys) => ({
-      ...sys,
-      measures: sys.measures.map((m) => ({
-        ...m,
-        notes: m.notes.map((n) => notesById.get(n.id) ?? n),
-      })),
-    }));
-
-    const addedNoteList = addedNoteIds
+    // Collect surviving added notes (not deleted), keyed by their bbox.x for measure placement
+    const survivingAdded = addedNoteIds
+      .filter((id) => !deletedNoteIds.has(id))
       .map((id) => notesById.get(id))
       .filter((n): n is Note => n !== undefined);
+
+    // Build corrected systems: filter deleted original notes, apply corrections,
+    // and inject added notes into the measure whose x range contains the note.
+    const orphanAdded: Note[] = [];
+    const correctedSystems = omrData.systems.map((sys) => ({
+      ...sys,
+      measures: sys.measures.map((m) => {
+        const addedInMeasure = survivingAdded.filter(
+          (n) => n.location.bbox.x >= m.x_start && n.location.bbox.x <= m.x_end
+        );
+        return {
+          ...m,
+          notes: [
+            ...m.notes
+              .filter((n) => !deletedNoteIds.has(n.id))
+              .map((n) => notesById.get(n.id) ?? n),
+            ...addedInMeasure,
+          ],
+        };
+      }),
+    }));
+
+    // Any added note that didn't fall inside any measure x range goes here
+    const placedIds = new Set(
+      correctedSystems.flatMap((s) => s.measures.flatMap((m) => m.notes.map((n) => n.id)))
+    );
+    survivingAdded.forEach((n) => { if (!placedIds.has(n.id)) orphanAdded.push(n); });
 
     const exportData = {
       ...omrData,
       systems: correctedSystems,
-      added_notes: addedNoteList,
+      ...(orphanAdded.length > 0 && { unplaced_added_notes: orphanAdded }),
+      deleted_note_ids: [...deletedNoteIds],
       exported_at: new Date().toISOString(),
     };
 
@@ -299,6 +328,7 @@ export default function App() {
             addNoteMode={addNoteMode}
             onCorrect={handleCorrect}
             onReset={handleReset}
+            onDelete={handleDelete}
             onAddClick={handleScoreClick}
           />
         </div>

@@ -12,6 +12,7 @@ interface ScoreViewerProps {
   addNoteMode: boolean;
   onCorrect: (noteId: string, alternative: NoteAlternative) => void;
   onReset: (noteId: string) => void;
+  onDelete: (noteId: string) => void;
   onAddClick: (origX: number, origY: number, clientX: number, clientY: number) => void;
 }
 
@@ -43,7 +44,7 @@ function StaffLineOverlay({ staffLines, scaleX, scaleY }: { staffLines: StaffLin
   );
 }
 
-export function ScoreViewer({ omrData, threshold, imageUrl, notes, addNoteMode, onCorrect, onReset, onAddClick }: ScoreViewerProps) {
+export function ScoreViewer({ omrData, threshold, imageUrl, notes, addNoteMode, onCorrect, onReset, onDelete, onAddClick }: ScoreViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scaleX, scaleY } = useScaleFactors(containerRef, omrData.image_size.width, omrData.image_size.height);
 
@@ -62,6 +63,11 @@ export function ScoreViewer({ omrData, threshold, imageUrl, notes, addNoteMode, 
   const handleReset = useCallback((note: Note) => {
     onReset(note.id);
   }, [onReset]);
+
+  const handleDelete = useCallback((note: Note) => {
+    onDelete(note.id);
+    setPopup(null);
+  }, [onDelete]);
 
   const handleClose = useCallback(() => setPopup(null), []);
 
@@ -159,6 +165,7 @@ export function ScoreViewer({ omrData, threshold, imageUrl, notes, addNoteMode, 
           anchorY={popup.anchorY}
           onCorrect={handleCorrect}
           onReset={handleReset}
+          onDelete={handleDelete}
           onClose={handleClose}
         />
       )}

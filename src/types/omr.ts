@@ -94,6 +94,8 @@ export interface Note {
   id: string;
   staff_number: number;
   voice: number;
+  /** When true, this note is played simultaneously with the previous note (same onset, MusicXML <chord/> convention). */
+  chord?: boolean;
   location: {
     bbox: Bbox;
     stem_bbox: Bbox | null;
